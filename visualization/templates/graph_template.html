@@ -20,8 +20,8 @@
     const countDay = i => (i + 6) % 7;
 
     // Configuration for the date range
-    const startDate = new Date("2026-01-01");
-    const endDate = new Date("2026-12-31");
+    const startDate = new Date(new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]); // start of current year
+    const endDate = new Date(new Date(new Date(new Date().getFullYear() + 1, 0, 0).getTime() - 1).toISOString().split('T')[0]); // end of current year
     // {"Date": "2026-01-04", "Views": number}[]
     const rawData = JSON.parse('{{ request_data | tojson }}').map(d => ({ ...d, Date: new Date(d.Date).toISOString().split('T')[0] }));
 

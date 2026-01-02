@@ -2,3 +2,4 @@ venv
 *.min.*
 .idea
 __pycache__
+*.db
