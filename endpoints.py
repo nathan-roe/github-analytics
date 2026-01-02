@@ -18,8 +18,12 @@ app.mount("/static", StaticFiles(directory="visualization/templates"), name="sta
 async def on_startup():
     await create_db_and_tables()
 
-async def save_request_data(request: Request, session: AsyncSession, commit = False, from_hidden = False):
-    retrieved_host = request.headers.get('host')
+async def save_request_data(request: Request, page: str, session: AsyncSession, commit = False, from_hidden = False):
+    if request.headers.get('referer') is not None:
+        return
+    retrieved_host = request.headers.get('x-forwarded-for')
+    if retrieved_host is None:
+        retrieved_host = request.headers.get('host') # catch all, as the host will be the local one
 
     result = await session.execute(select(IdentifiedRequestSource)
                                    .where(IdentifiedRequestSource.ip == retrieved_host))
@@ -30,14 +34,14 @@ async def save_request_data(request: Request, session: AsyncSession, commit = Fa
         session.add(request_source)
         await session.flush() # Push to DB to get ID without committing
 
-    captured_request = CapturedRequest(headers=dict(request.headers), request_source=request_source, from_hidden=from_hidden)
+    captured_request = CapturedRequest(headers=dict(request.headers), request_source=request_source, from_hidden=from_hidden, page=page)
     session.add(captured_request)
     if commit:
         await session.commit()
 
 @app.get("/", responses={200: {"content": {"image/png": {}}}}, response_class=Response)
-async def retrieve_beacon(request: Request, session: AsyncSession = Depends(get_db)):
-    await save_request_data(request, session)
+async def retrieve_beacon(request: Request, page: str = '', session: AsyncSession = Depends(get_db)):
+    await save_request_data(request, page, session)
     response = await TemplateManager.get_template_bytes(request, "graph_template.html", {
         'x': 0, 'y': 0,
         'width': 927.5,
@@ -47,8 +51,8 @@ async def retrieve_beacon(request: Request, session: AsyncSession = Depends(get_
     return Response(content=response, media_type="image/png")
 
 @app.get("/hidden", responses={200: {"content": {"image/png": {}}}}, response_class=Response)
-async def retrieve_beacon_hidden(request: Request, session: AsyncSession = Depends(get_db)):
-    await save_request_data(request, session, True, True)
+async def retrieve_beacon_hidden(request: Request, page: str = '', session: AsyncSession = Depends(get_db)):
+    await save_request_data(request, page, session, True, True)
     img = Image.new('RGBA', (1, 1), (0, 0, 0, 0))
     byte_io = BytesIO()
     img.save(byte_io, format='PNG')
