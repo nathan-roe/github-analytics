@@ -1,6 +1,7 @@
 name: Update Visualization in README for CDN cache
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
 
