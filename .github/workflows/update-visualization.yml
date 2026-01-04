@@ -3,7 +3,7 @@ name: Update Visualization in README for CDN cache
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 */8 * * *'
 
 jobs:
   update-readme-visualization:
