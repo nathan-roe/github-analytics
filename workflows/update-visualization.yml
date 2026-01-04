@@ -1,0 +1,41 @@
+name: Update Visualization in README for CDN cache
+
+on:
+  schedule:
+    - cron: '0 */8 * * *'
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+        persist-credentials: true
+        fetch-depth: 0
+
+      - name: Update README cache buster
+        run: |
+          # Generate a unique value using the current epoch time
+          NEW_V=$(date +%s)
+          # Use sed to replace v=NUMBER with v=NEW_V in README.md
+          sed -i "s/v=[0-9]*/v=$NEW_V/g" README.md
+
+      - name: Configure git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Commit changes
+        run: |
+          # Stage the file(s)
+          git add README.md
+
+          # Only create a commit if something changed
+          if ! git diff --cached --quiet; then
+            git commit -m "🤖 Automated README refresh (run @ $(date -u +"%Y-%m-%d %H:%M UTC"))"
+            git push origin "${{ github.ref_name }}"
+          else
+            echo "No changes detected – nothing to commit."
+          fi

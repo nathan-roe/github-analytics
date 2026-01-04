@@ -5,7 +5,10 @@ from sqlmodel import Field, SQLModel, JSON, Column, Relationship
 class CapturedRequest(SQLModel, table=True):
     __tablename__ = "captured_request"
     id: Optional[int] = Field(default=None, primary_key=True)
-    request_time: float = datetime.now(timezone.utc).timestamp()
+    request_time: float = Field(
+        default_factory=lambda: datetime.now(timezone.utc).timestamp(),
+        nullable=False,
+    )
     headers: Dict[str, Any] = Field(sa_column=Column(JSON), default_factory=dict)
     from_hidden: bool = False
     page: str
