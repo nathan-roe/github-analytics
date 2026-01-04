@@ -12,8 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-        persist-credentials: true
-        fetch-depth: 0
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Update README cache buster
         run: |
