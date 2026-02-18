@@ -2,7 +2,7 @@
 
 A lightweight, asynchronous FastAPI application designed to capture and visualize request data. This project acts as a web beacon that can be embedded in Markdown files (like GitHub READMEs) to monitor traffic and identify request sources.
 
-<img src="http://44.213.120.40?page=github-analytics-beacon&v=1771404316" alt="Github View Analytics">
+<img src="http://44.213.120.40?page=github-analytics-beacon&v=1771434229" alt="Github View Analytics">
 
 ## Features
 
